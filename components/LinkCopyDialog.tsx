@@ -11,13 +11,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy } from "react-feather"; // Assuming you have the Copy icon imported.
+import CopyButton from "./CopyButton";
 
 export function LinkCopyDialog({ id }: { id: string }) {
-  // State to store the generated link
   const [generatedLink, setGeneratedLink] = useState<string>("");
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleGenerateLink = async () => {
     try {
@@ -42,11 +43,16 @@ export function LinkCopyDialog({ id }: { id: string }) {
     }
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setIsCopied(true);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" onClick={handleGenerateLink}>
-          Share
+          Generate Link
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
@@ -56,34 +62,27 @@ export function LinkCopyDialog({ id }: { id: string }) {
             Anyone who has this link will be able to view this.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="link" className="sr-only">
-              Link
-            </Label>
-            <Input
-              id="link"
-              value={generatedLink} // Set the value to the generated link
-              readOnly
+        {generatedLink ? (
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="link" className="sr-only">
+                Link
+              </Label>
+              <Input
+                id="link"
+                value={generatedLink} // Set the value to the generated link
+                readOnly
+              />
+            </div>
+            <CopyButton
+              generatedLink={generatedLink}
+              isCopied={isCopied}
+              handleCopy={() => handleCopy()}
             />
           </div>
-          <Button
-            type="button"
-            size="sm"
-            className="px-3"
-            onClick={() => navigator.clipboard.writeText(generatedLink)}
-          >
-            <span className="sr-only">Copy</span>
-            <Copy />
-          </Button>
-        </div>
-        <DialogFooter className="sm:justify-start">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-        </DialogFooter>
+        ) : (
+          <div>Generating Link</div>
+        )}
       </DialogContent>
     </Dialog>
   );
