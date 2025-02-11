@@ -17,14 +17,12 @@ export default function LoginPage() {
     const result = await signIn("credentials", {
       email,
       password,
-      redirect: false, // Prevent automatic redirection
+      redirect: false,
     });
-
-    console.log(result);
     if (result?.error) {
       setError("Invalid email or password");
     } else {
-      router.push("/"); // Redirect user to dashboard after login
+      router.push("/");
     }
   };
 

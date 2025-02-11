@@ -1,10 +1,8 @@
-import NextAuth, { SessionStrategy } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { client } from "@/sanity/lib/client";
-import bcrypt from "bcryptjs";
-
-// Configure NextAuth
-const authOptions = {
+import { GET_USER_QUERY } from "@/sanity/lib/queries";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { AuthOptions } from "next-auth";
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -13,46 +11,58 @@ const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing credentials");
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Missing credentials");
+          }
+
+          const user = await client.fetch(GET_USER_QUERY, {
+            email: credentials.email,
+            status: "active",
+          });
+
+          if (!user) {
+            console.log("User not found");
+            return null;
+          }
+
+          if (credentials.password !== user.password) {
+            console.log(
+              "Password mismatch",
+              credentials.password,
+              user.password
+            );
+            return null;
+          }
+
+          const returnUser = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+          };
+          console.log("Authorized user:", returnUser);
+          return returnUser;
+        } catch (error) {
+          console.error("=== Authorization error ===");
+          console.error(error);
+          return null;
         }
-
-        // Fetch user by email from Sanity
-        const user = await client.fetch(
-          `*[_type == "user" && email == $email][0]`,
-          { email: credentials.email }
-        );
-
-        if (!user) {
-          throw new Error("Invalid credentials");
-        }
-
-        // Compare the hashed password using bcrypt
-        const isValidPassword = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isValidPassword) {
-          throw new Error("Invalid credentials");
-        }
-
-        return {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-        };
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token }) {
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.sub as string; // Ensure session.user has id
+      }
+      return session;
+    },
+  },
   session: {
-    strategy: "jwt" as SessionStrategy,
+    strategy: "jwt",
   },
-  pages: {
-    signIn: "/login",
-  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
-
-// Export API routes for App Router
-export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);
-export { auth as GET, auth as POST }; // Required for App Router

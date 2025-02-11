@@ -1,17 +1,36 @@
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
+import { client } from "@/sanity/lib/client";
+
+import { Link } from "lucide-react";
+import { LinkCopyDialog } from "@/components/LinkCopyDialog";
+import { GET_TEST_RESULT_QUERY } from "@/sanity/lib/queries";
+import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
+import TableComponent from "@/components/TableComponent";
 
-export default async function DashboardPage() {
-  const session = await getServerSession();
+export default async function Home() {
+  const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login"); // Redirect if not logged in
+  if (!session?.user) {
+    redirect("/login");
   }
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Welcome, {session.user?.name}!</h1>
-      <p>Your email: {session.user?.email}</p>
-    </div>
-  );
+  try {
+    const testResults = await client.fetch(GET_TEST_RESULT_QUERY, {
+      userId: session.user.id,
+    });
+
+    return (
+      <div>
+        <h1>Welcome, {session.user.name}!</h1>
+        <LinkCopyDialog id={session.user.id} />
+
+        <h2>Your Test Results</h2>
+        <TableComponent testResults={testResults} />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return <div>Error loading data. Please try again later.</div>;
+  }
 }
