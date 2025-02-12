@@ -35,7 +35,7 @@ export function LinkCopyDialog({ id }: { id: string }) {
       const data = await response.json();
       if (data.linkId) {
         // Set the generated link in the state
-        const link = `https://yourapp.com/test/${data.linkId}`;
+        const link = `${process.env.NEXT_PUBLIC_BASE_URL}/test?linkId=${data.linkId}`;
         setGeneratedLink(link);
       }
     } catch (error) {

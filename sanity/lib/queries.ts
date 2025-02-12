@@ -17,3 +17,15 @@ export const GET_TEST_RESULT_QUERY =
     completedAt,
     participant,
   }`);
+
+export const GET_TEST_BY_ID_QUERY = defineQuery(`
+    *[_type =="testLink" && linkId==$linkId][0]{
+    _id,
+    linkId,
+    isUsed,
+    createdBy->{
+      _id,
+      name,
+      email,
+        }
+  }`);

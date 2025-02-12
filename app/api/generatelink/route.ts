@@ -4,10 +4,11 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { id } = await req.json();
 
-  const linkId = `test-${Date.now()}`;
+  const linkId = `${crypto.randomUUID()}`;
   const newLink = await writeClient.create({
     _type: "testLink",
     linkId: linkId,
+    isUsed: false,
     createdBy: {
       _type: "reference",
       _ref: id,

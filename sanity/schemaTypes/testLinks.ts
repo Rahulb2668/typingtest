@@ -35,7 +35,7 @@ export const testLink = {
       name: "isUsed",
       title: "Is Used",
       type: "boolean",
-      default: false,
+      initialValue: false,
     },
     {
       name: "createdAt",
