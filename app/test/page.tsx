@@ -9,7 +9,6 @@ interface SearchParams {
 }
 
 interface PageProps {
-  params: {};
   searchParams: SearchParams;
 }
 
@@ -24,7 +23,7 @@ interface Test {
   };
 }
 
-const Page = async ({ params, searchParams }: PageProps) => {
+const Page = async ({ searchParams }: PageProps) => {
   const { linkId } = await searchParams;
 
   if (!linkId) {

@@ -5,7 +5,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Copy } from "react-feather";
-import { Button } from "./ui/button";
 
 interface CopyButtonProps {
   generatedLink: string;
@@ -13,17 +12,13 @@ interface CopyButtonProps {
   handleCopy: () => void;
 }
 
-const CopyButton = ({
-  generatedLink,
-  isCopied,
-  handleCopy,
-}: CopyButtonProps) => {
+const CopyButton = ({ isCopied, handleCopy }: CopyButtonProps) => {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger
           className="p-2 bg-gray-100 hover:bg-gray-200"
-          onClick={() => navigator.clipboard.writeText(generatedLink)}
+          onClick={() => handleCopy()}
         >
           <span className="sr-only">Copy</span>
           <Copy />
