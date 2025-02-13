@@ -13,11 +13,12 @@ export async function POST(request: Request) {
       );
     }
 
-    await writeClient.create({
-      _type: "testtesult",
+    const res = await writeClient.create({
+      _type: "testResult",
       ...result,
     });
 
+    console.log(res);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating test:", error);

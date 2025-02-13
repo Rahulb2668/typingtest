@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
+import { redirect } from "next/navigation";
 interface TestInterfaceProps {
   _id: string;
   linkId: string;
@@ -50,7 +51,7 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedParagraph, setGeneratedParagraph] = useState("");
   const [userInput, setUserInput] = useState("");
-  const [timeLimit] = useState(60); // Timer limit (in seconds)
+  const [timeLimit] = useState(10); // Timer limit (in seconds)
   const [timeRemaining, setTimeRemaining] = useState(timeLimit); // Time remaining in countdown (state-based)
 
   const timerRef = useRef<NodeJS.Timeout | null>(null); // Timer interval reference
@@ -165,6 +166,7 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
         throw new Error("Failed to update test");
       }
       alert(`Test Completed! WPM: ${wpm}, Accuracy: ${accuracy}%`);
+      redirect("/thankyou");
     } catch (error) {
       console.error("Error saving result:", error);
     }
