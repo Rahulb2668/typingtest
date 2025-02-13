@@ -51,7 +51,7 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedParagraph, setGeneratedParagraph] = useState("");
   const [userInput, setUserInput] = useState("");
-  const [timeLimit] = useState(10); // Timer limit (in seconds)
+  const [timeLimit] = useState(60); // Timer limit (in seconds)
   const [timeRemaining, setTimeRemaining] = useState(timeLimit); // Time remaining in countdown (state-based)
 
   const timerRef = useRef<NodeJS.Timeout | null>(null); // Timer interval reference
