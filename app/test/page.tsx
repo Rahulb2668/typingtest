@@ -33,13 +33,13 @@ const Page = async ({ searchParams }: props) => {
       notFound();
     }
 
-    // if (test.isUsed) {
-    //   return (
-    //     <div className="text-center text-red-500 mt-10 text-xl">
-    //       This test link has already been used.
-    //     </div>
-    //   );
-    // }
+    if (test.isUsed) {
+      return (
+        <div className="text-center text-red-500 mt-10 text-xl">
+          This test link has already been used.
+        </div>
+      );
+    }
 
     return <TestInterface test={test} />;
   } catch (error) {
