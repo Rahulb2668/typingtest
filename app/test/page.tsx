@@ -4,13 +4,7 @@ import { GET_TEST_BY_ID_QUERY } from "@/sanity/lib/queries";
 import { notFound } from "next/navigation";
 import TestInterface from "@/components/TestInterface";
 
-interface SearchParams {
-  linkId?: string;
-}
-
-interface PageProps {
-  searchParams: SearchParams;
-}
+type props = { searchParams: Promise<{ linkId: string }> };
 
 interface Test {
   _id: string;
@@ -23,7 +17,7 @@ interface Test {
   };
 }
 
-const Page = async ({ searchParams }: PageProps) => {
+const Page = async ({ searchParams }: props) => {
   const { linkId } = await searchParams;
 
   if (!linkId) {

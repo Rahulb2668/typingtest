@@ -7,13 +7,6 @@ export const testResult = {
       title: "participant.firstName",
       subtitle: "wpm",
     },
-    prepare(selection: { title: string; subtitle: string }) {
-      const { title, subtitle } = selection;
-      return {
-        title: title || "Untitled",
-        subtitle: `WPM: ${subtitle}`,
-      };
-    },
   },
   fields: [
     {
