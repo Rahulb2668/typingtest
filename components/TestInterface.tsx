@@ -107,7 +107,6 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
   };
   const startTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    console.log("Timer started");
 
     timerRef.current = setInterval(async () => {
       // Decrease time remaining and update ref
@@ -119,37 +118,137 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
         console.log("Timer ended", userInput);
         await calculateResults();
       }
-
-      // Update visual timer (React component will re-render if you use state here)
-      console.log("Time Remaining: ", timeRemainingRef.current);
     }, 1000);
   };
+
+  interface TypingMetricsResult {
+    wpm: number;
+    netWPM: number;
+    cpm: number;
+    accuracy: number;
+    errorRate: number;
+    totalWordsTyped: number;
+    correctWords: number;
+    errorWords: number;
+    totalCorrectCharacters: number;
+    totalTypedCharacters: number;
+    partialWord: string;
+    isLastWordComplete: boolean;
+  }
+
+  const calculateTypingMetrics = (
+    inputText: string,
+    targetText: string
+  ): TypingMetricsResult => {
+    const inputWords = inputText.trim().split(/\s+/);
+    const targetWords = targetText.trim().split(/\s+/);
+
+    let totalCorrectCharacters = 0;
+    let totalTypedCharacters = inputText.replace(/\s+/g, "").length;
+    let correctWords = 0;
+    let errorWords = 0;
+    let totalErrors = 0;
+
+    const minWords = Math.min(inputWords.length, targetWords.length);
+
+    for (let i = 0; i < minWords; i++) {
+      const inputWord = inputWords[i];
+      const targetWord = targetWords[i];
+      let wordCorrectCharacters = 0;
+      let wordErrors = 0;
+      const minLength = Math.min(inputWord.length, targetWord.length);
+
+      for (let j = 0; j < minLength; j++) {
+        if (inputWord[j] === targetWord[j]) {
+          wordCorrectCharacters++;
+        } else {
+          wordErrors++;
+        }
+      }
+
+      // Handle extra characters in input word
+      wordErrors += Math.abs(inputWord.length - targetWord.length);
+      totalErrors += wordErrors;
+      totalCorrectCharacters += wordCorrectCharacters;
+
+      // Mark word as correct if fully matched
+      if (inputWord === targetWord) {
+        correctWords++;
+      } else {
+        errorWords++;
+      }
+    }
+
+    // Handle extra words in input (over-typed words)
+    if (inputWords.length > targetWords.length) {
+      for (let i = minWords; i < inputWords.length; i++) {
+        totalErrors += inputWords[i].length;
+        errorWords++;
+      }
+    }
+
+    // Handle missing words in input (under-typed words)
+    if (targetWords.length > inputWords.length) {
+      for (let i = minWords; i < targetWords.length; i++) {
+        totalErrors += targetWords[i].length;
+        errorWords++;
+      }
+    }
+
+    // Handle last word specifically for partial matching
+    const lastWordComplete = inputText.endsWith(" ");
+    const partialWord =
+      !lastWordComplete && inputWords.length > 0
+        ? inputWords[inputWords.length - 1]
+        : "";
+
+    // Character-based accuracy calculation
+    const accuracy =
+      totalTypedCharacters > 0
+        ? Math.round((totalCorrectCharacters / totalTypedCharacters) * 100)
+        : 0;
+
+    const wpm = inputWords.length;
+    const netWPM = correctWords;
+    const cpm = totalTypedCharacters;
+    const errorRate =
+      totalTypedCharacters > 0
+        ? Math.round((totalErrors / totalTypedCharacters) * 100)
+        : 0;
+
+    return {
+      wpm,
+      netWPM,
+      cpm,
+      accuracy,
+      errorRate,
+      totalWordsTyped: inputWords.length,
+      correctWords,
+      errorWords,
+      totalCorrectCharacters,
+      totalTypedCharacters,
+      partialWord,
+      isLastWordComplete: lastWordComplete,
+    };
+  };
+
   const calculateResults = async () => {
-    console.log("Calculate Results", inputRef.current);
     clearInterval(timerRef.current as NodeJS.Timeout); // Stop timer
 
-    const wordsTyped = inputRef.current.trim().split(/\s+/).length;
-    const correctWords = generatedParagraph
-      .trim()
-      .split(/\s+/)
-      .filter(
-        (word, index) => word === inputRef.current.trim().split(/\s+/)[index]
-      ).length;
+    // Calculate typing metrics
+    const typingMetrics = calculateTypingMetrics(
+      inputRef.current,
+      generatedParagraph
+    );
 
-    const accuracy =
-      wordsTyped > 0 ? Math.round((correctWords / wordsTyped) * 100) : 0;
-    const wpm = Math.round((wordsTyped / timeLimit) * 60);
-
-    alert(`Test Completed! WPM: ${wpm}, Accuracy: ${accuracy}%`);
     setIsStarted(false);
     setUserInput("");
     inputRef.current = "";
-
     const result = {
       testLink: { _type: "reference", _ref: test._id },
       participant: { email, firstName: fullName },
-      wpm: wpm,
-      accuracy,
+      wpm: typingMetrics.wpm,
+      accuracy: typingMetrics.accuracy,
       completedAt: new Date().toISOString(),
     };
 
@@ -165,7 +264,6 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
       if (!response.ok) {
         throw new Error("Failed to update test");
       }
-      alert(`Test Completed! WPM: ${wpm}, Accuracy: ${accuracy}%`);
       redirect("/thankyou");
     } catch (error) {
       console.error("Error saving result:", error);
