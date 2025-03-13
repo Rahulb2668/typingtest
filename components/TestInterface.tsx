@@ -144,7 +144,7 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
     const targetWords = targetText.trim().split(/\s+/);
 
     let totalCorrectCharacters = 0;
-    let totalTypedCharacters = inputText.replace(/\s+/g, "").length;
+    const totalTypedCharacters = inputText.replace(/\s+/g, "").length;
     let correctWords = 0;
     let errorWords = 0;
     let totalErrors = 0;
