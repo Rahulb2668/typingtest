@@ -20,7 +20,7 @@ export default function RootLayout({
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
     if (isMobile) {
-      router.replace("/mobile-not-supported"); // Redirect mobile users
+      router.replace("/mobilenotsupported"); // Redirect mobile users
     }
   }, []);
 
