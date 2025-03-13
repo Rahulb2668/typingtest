@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const result = await request.json();
-    console.log("Result:", result);
 
     if (!result) {
       return NextResponse.json(
