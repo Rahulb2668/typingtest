@@ -1,8 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 
-import { redirect } from "next/navigation";
 interface TestInterfaceProps {
   _id: string;
   linkId: string;
@@ -53,6 +53,7 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
   const [userInput, setUserInput] = useState("");
   const [timeLimit] = useState(60); // Timer limit (in seconds)
   const [timeRemaining, setTimeRemaining] = useState(timeLimit); // Time remaining in countdown (state-based)
+  const router = useRouter();
 
   const timerRef = useRef<NodeJS.Timeout | null>(null); // Timer interval reference
   const timeRemainingRef = useRef(timeLimit); // Track time remaining in countdown (ref-based)
@@ -264,7 +265,7 @@ const TestInterface = ({ test }: { test: TestInterfaceProps }) => {
       if (!response.ok) {
         throw new Error("Failed to update test");
       }
-      redirect("/thankyou");
+      router.replace("/thankyou");
     } catch (error) {
       console.error("Error saving result:", error);
     }

@@ -36,7 +36,7 @@ export default async function Page() {
       <Card className=" rounded-xl p-6">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Welcome, {session.user.name}! 🎉
+            Welcome, {session.user.name}!
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
